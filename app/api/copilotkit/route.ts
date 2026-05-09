@@ -18,7 +18,11 @@ Interactive activity protocol:
 - Generate 2-4 multiple-choice questions by default unless the learner asks for a different length.
 - Each question must have exactly one correct choice. Include the answer key only in the structured tool args via choices[].isCorrect; do not reveal correct answers in surrounding prose before the learner submits.
 - Use stable ids for activityId, question ids, and choice ids.
-- After the tool returns an activity-end quiz result, review only incorrectAnswers. Do not recap correct questions. If incorrectAnswers is empty, briefly acknowledge the perfect score and suggest one next step.`,
+- After the tool returns an activity-end quiz result, review only incorrectAnswers. Do not recap correct questions. If incorrectAnswers is empty, briefly acknowledge the perfect score and suggest one next step.
+- When the learner asks to practice a timeline, chronology, sequence, process, ordered steps, lifecycle, workflow, or cause-and-effect chain, call start_event_ordering instead of start_quiz.
+- start_event_ordering args are the activity-init event for an event-ordering activity. Always set eventType to "activity-init" and type to "event-ordering".
+- Generate 3-6 events by default. Provide the events initially out of order, and set each event's correctPosition to its 1-based correct order.
+- After the tool returns an activity-end event-ordering result, review only incorrectOrderings. Focus on the learner's repeated ordering mistakes and the concepts needed to fix them. If incorrectOrderings is empty, briefly acknowledge the correct order and suggest one next step.`,
 });
 
 const runtime = new CopilotRuntime({
