@@ -2,6 +2,8 @@
 
 Copilot Tutor is a Next.js tutoring agent that uses CopilotKit to chat with learners and generate interactive study activities inside the conversation. The tutor can explain concepts, create multiple-choice quizzes, build event-ordering exercises, and run misconception-detective activities where learners identify and explain an incorrect claim.
 
+This project was built as part of the [Generative UI Global Hackathon: Agentic Interfaces](https://hong-kong.aitinkerers.org/p/generative-ui-global-hackathon-agentic-interfaces-hong-kong).
+
 ## Tech Stack
 
 - [Next.js](https://nextjs.org/) app router
