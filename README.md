@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Copilot Tutor
+
+Copilot Tutor is a Next.js tutoring agent that uses CopilotKit to chat with learners and generate interactive study activities inside the conversation. The tutor can explain concepts, create multiple-choice quizzes, build event-ordering exercises, and run misconception-detective activities where learners identify and explain an incorrect claim.
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org/) app router
+- [CopilotKit](https://www.copilotkit.ai/) runtime and React UI
+- Gemini via CopilotKit's built-in agent model resolver
+- React and Tailwind CSS
+
+## Requirements
+
+- Node.js compatible with Next.js 16
+- pnpm
+- A Gemini API key from Google AI Studio
+
+## Environment Variables
+
+This project requires a server-side Gemini API key:
+
+```bash
+GOOGLE_API_KEY=your_gemini_api_key_here
+```
+
+Create your local environment file from the example:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and replace the placeholder with your real Gemini API key:
+
+```bash
+GOOGLE_API_KEY=AIza...
+```
+
+Do not prefix this variable with `NEXT_PUBLIC_`. The key is used by the server-side CopilotKit route in `app/api/copilotkit/route.ts` and the grading route in `app/api/misconception-detective/grade/route.ts`.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## How to Use
 
-To learn more about Next.js, take a look at the following resources:
+Ask the tutor for help with a topic:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+Explain photosynthesis at a high-school level.
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ask for an interactive quiz:
 
-## Deploy on Vercel
+```text
+Give me a 4-question quiz about React hooks.
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ask for an ordering activity:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+Help me practice the order of mitosis phases.
+```
+
+Ask for misconception practice:
+
+```text
+Play misconception detective with me about HTTP caching.
+```
+
+The tutor will call the relevant CopilotKit human-in-the-loop tool and render the interactive component in the chat.
+
+## Scripts
+
+```bash
+pnpm dev
+pnpm build
+pnpm start
+pnpm lint
+```
+
+## Project Structure
+
+- `app/page.tsx` renders the chat UI and registers activity tools.
+- `app/api/copilotkit/route.ts` configures the CopilotKit runtime and Gemini tutor agent.
+- `app/components/*` contains the interactive quiz, ordering, and misconception-detective components.
+- `app/api/misconception-detective/grade/route.ts` grades misconception-detective attempts with Gemini.
