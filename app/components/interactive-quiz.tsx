@@ -26,9 +26,13 @@ export type QuizActivityInit = {
 
 export type QuizAnswerResult = {
   questionId: string;
+  questionPrompt: string;
   selectedChoiceId: string | null;
+  selectedChoiceText: string | null;
   correctChoiceId: string | null;
+  correctChoiceText: string | null;
   isCorrect: boolean;
+  explanation?: string;
 };
 
 export type QuizActivityEnd = {
@@ -41,6 +45,7 @@ export type QuizActivityEnd = {
   percentage: number;
   completedAt: string;
   answers: QuizAnswerResult[];
+  incorrectAnswers: QuizAnswerResult[];
 };
 
 type InteractiveQuizProps = {
@@ -76,22 +81,30 @@ export function InteractiveQuiz({ quiz, onComplete }: InteractiveQuizProps) {
   const completeQuiz = (answersByQuestion: Record<string, string>) => {
     const answers = quiz.questions.map((question) => {
       const selectedQuestionChoiceId = answersByQuestion[question.id] ?? null;
+      const selectedQuestionChoice = question.choices.find(
+        (choice) => choice.id === selectedQuestionChoiceId,
+      );
       const correctQuestionChoice = question.choices.find(
         (choice) => choice.isCorrect,
       );
 
       return {
         questionId: question.id,
+        questionPrompt: question.prompt,
         selectedChoiceId: selectedQuestionChoiceId,
+        selectedChoiceText: selectedQuestionChoice?.text ?? null,
         correctChoiceId: correctQuestionChoice?.id ?? null,
+        correctChoiceText: correctQuestionChoice?.text ?? null,
         isCorrect: Boolean(
           selectedQuestionChoiceId &&
             correctQuestionChoice?.id === selectedQuestionChoiceId,
         ),
+        explanation: question.explanation,
       };
     });
 
     const score = answers.filter((answer) => answer.isCorrect).length;
+    const incorrectAnswers = answers.filter((answer) => !answer.isCorrect);
     const completedQuiz: QuizActivityEnd = {
       eventType: "activity-end",
       type: "quiz",
@@ -102,6 +115,7 @@ export function InteractiveQuiz({ quiz, onComplete }: InteractiveQuizProps) {
       percentage: total === 0 ? 0 : Math.round((score / total) * 100),
       completedAt: new Date().toISOString(),
       answers,
+      incorrectAnswers,
     };
 
     setResult(completedQuiz);
@@ -119,10 +133,6 @@ export function InteractiveQuiz({ quiz, onComplete }: InteractiveQuizProps) {
     };
 
     setSelectedChoices(updatedChoices);
-
-    if (isLastQuestion) {
-      completeQuiz(updatedChoices);
-    }
   };
 
   const goToNextQuestion = () => {
@@ -131,6 +141,14 @@ export function InteractiveQuiz({ quiz, onComplete }: InteractiveQuizProps) {
     }
 
     setCurrentQuestionIndex((index) => index + 1);
+  };
+
+  const finishQuiz = () => {
+    if (!hasAnsweredCurrent || !isLastQuestion || result) {
+      return;
+    }
+
+    completeQuiz(selectedChoices);
   };
 
   if (!currentQuestion) {
@@ -244,9 +262,14 @@ export function InteractiveQuiz({ quiz, onComplete }: InteractiveQuizProps) {
             Next
           </button>
         ) : !result && isLastQuestion ? (
-          <span className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-600">
-            Answer to finish
-          </span>
+          <button
+            type="button"
+            onClick={finishQuiz}
+            disabled={!hasAnsweredCurrent}
+            className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-zinc-300"
+          >
+            Finish
+          </button>
         ) : result ? (
           <span className="rounded-md bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-900">
             Finished

@@ -18,7 +18,7 @@ Interactive activity protocol:
 - Generate 2-4 multiple-choice questions by default unless the learner asks for a different length.
 - Each question must have exactly one correct choice. Include the answer key only in the structured tool args via choices[].isCorrect; do not reveal correct answers in surrounding prose before the learner submits.
 - Use stable ids for activityId, question ids, and choice ids.
-- After the tool returns an activity-end quiz result, explain what the learner got right and wrong, focus on incorrect questions, and suggest a next step.`,
+- After the tool returns an activity-end quiz result, review only incorrectAnswers. Do not recap correct questions. If incorrectAnswers is empty, briefly acknowledge the perfect score and suggest one next step.`,
 });
 
 const runtime = new CopilotRuntime({

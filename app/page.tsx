@@ -9,7 +9,7 @@ const CopilotChat = dynamic(
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
+    <main className="h-screen bg-zinc-50 text-zinc-950 flex flex-col">
       <QuizTool />
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <header className="mb-5 flex items-center justify-between gap-4">
