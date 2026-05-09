@@ -1,68 +1,14 @@
 "use client";
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
-import { z } from "zod";
+import {
+  misconceptionDetectiveActivitySchema,
+  type MisconceptionDetectiveActivity,
+  type MisconceptionDetectiveFeedback,
+} from "../lib/misconception-detective";
 import {
   InteractiveMisconceptionDetective,
-  type MisconceptionDetectiveAttempt,
 } from "./interactive-misconception-detective";
-
-const misconceptionTargetSchema = z.object({
-  incorrectText: z
-    .string()
-    .describe("The exact incorrect span or claim in the statement."),
-  correction: z.string().describe("The accurate replacement for the mistake."),
-  explanation: z
-    .string()
-    .describe("Brief explanation of why the generated statement is wrong."),
-});
-
-const misconceptionAttemptFeedbackSchema = z.object({
-  attemptNumber: z.number().int().min(1),
-  selectedText: z.string(),
-  reason: z.string(),
-  isCorrect: z.boolean(),
-  feedback: z.string().describe("Short feedback shown to the learner."),
-});
-
-const misconceptionDetectiveActivitySchema = z.object({
-  eventType: z
-    .enum(["activity-init", "activity-update"])
-    .describe(
-      "Use activity-init for the first detective card and activity-update when showing feedback and another attempt.",
-    ),
-  type: z.literal("misconception-detective"),
-  activityId: z
-    .string()
-    .describe("Unique id for this activity, such as 'detective-photosynthesis-1'."),
-  title: z.string().describe("Short activity title."),
-  instructions: z
-    .string()
-    .optional()
-    .describe("One sentence telling the learner to find the incorrect claim."),
-  statement: z
-    .string()
-    .describe(
-      "A short topic statement containing exactly one important factual mistake.",
-    ),
-  targetMisconception: misconceptionTargetSchema.describe(
-    "The hidden answer key for the agent to grade learner attempts.",
-  ),
-  attemptNumber: z
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("The next learner attempt number. Defaults to 1."),
-  priorAttempts: z
-    .array(misconceptionAttemptFeedbackSchema)
-    .optional()
-    .describe("Prior attempt feedback to display before the retry."),
-});
-
-type MisconceptionDetectiveActivity = z.infer<
-  typeof misconceptionDetectiveActivitySchema
->;
 
 type MisconceptionDetectiveToolProps = {
   args: Partial<MisconceptionDetectiveActivity>;
@@ -112,8 +58,8 @@ function MisconceptionDetectiveToolRenderer({
   return (
     <InteractiveMisconceptionDetective
       activity={parsedActivity.data}
-      onSubmitAttempt={(attempt: MisconceptionDetectiveAttempt) => {
-        void respond?.(JSON.stringify(attempt));
+      onComplete={(activityEnd: MisconceptionDetectiveFeedback) => {
+        void respond?.(JSON.stringify(activityEnd));
       }}
     />
   );

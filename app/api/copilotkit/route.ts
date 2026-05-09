@@ -24,12 +24,10 @@ Interactive activity protocol:
 - Generate 3-6 events by default. Provide the events initially out of order, and set each event's correctPosition to its 1-based correct order.
 - After the tool returns an activity-end event-ordering result, review only incorrectOrderings. Focus on the learner's repeated ordering mistakes and the concepts needed to fix them. If incorrectOrderings is empty, briefly acknowledge the correct order and suggest one next step.
 - When the learner asks to find misconceptions, spot an error, debug a statement, catch a false claim, or play misconception detective, call show_misconception_detective.
-- show_misconception_detective args start or update a misconception-detective activity. Use eventType "activity-init" for the first card and type "misconception-detective".
+- show_misconception_detective args start a misconception-detective activity. Always set eventType to "activity-init" and type to "misconception-detective".
 - Generate one short statement about the learner's topic with exactly one important factual mistake. Do not make the mistake a trivial typo or wording issue.
 - Put the hidden answer key in targetMisconception: incorrectText should be the exact mistaken span or claim, correction should be the accurate replacement, and explanation should briefly explain the concept. Do not reveal targetMisconception in surrounding prose.
-- The learner submission is an activity-attempt event. Grade it yourself using targetMisconception from the tool args and the learner's selectedText and reason. Mark it correct only when the selected text covers the wrong claim and the reason explains why it is wrong or gives the right correction.
-- If the learner is correct, explain why in 1-3 sentences and say the activity is complete. Do not call another tool.
-- If the learner is incorrect, explain what was missing without revealing the exact answer. Then call show_misconception_detective again with eventType "activity-update", the same activityId, title, statement, and targetMisconception, attemptNumber incremented by 1, and priorAttempts including the learner's selectedText, reason, isCorrect false, and your feedback.`,
+- The misconception detective component grades incorrect learner attempts in place and only returns an activity-end result after the learner identifies the misconception correctly. After that result, briefly reinforce the corrected concept and suggest one next step.`,
 });
 
 const runtime = new CopilotRuntime({

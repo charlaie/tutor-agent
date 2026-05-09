@@ -1,49 +1,15 @@
 "use client";
 
 import { type FormEvent, useRef, useState } from "react";
-
-export type MisconceptionTarget = {
-  incorrectText: string;
-  correction: string;
-  explanation: string;
-};
-
-export type MisconceptionAttemptFeedback = {
-  attemptNumber: number;
-  selectedText: string;
-  reason: string;
-  isCorrect: boolean;
-  feedback: string;
-};
-
-export type MisconceptionDetectiveActivity = {
-  eventType: "activity-init" | "activity-update";
-  type: "misconception-detective";
-  activityId: string;
-  title: string;
-  instructions?: string;
-  statement: string;
-  targetMisconception: MisconceptionTarget;
-  attemptNumber?: number;
-  priorAttempts?: MisconceptionAttemptFeedback[];
-};
-
-export type MisconceptionDetectiveAttempt = {
-  eventType: "activity-attempt";
-  type: "misconception-detective";
-  activityId: string;
-  title: string;
-  submittedAt: string;
-  attemptNumber: number;
-  selectedText: string;
-  selectedTextStart: number | null;
-  selectedTextEnd: number | null;
-  reason: string;
-};
+import type {
+  MisconceptionDetectiveActivity,
+  MisconceptionDetectiveAttempt,
+  MisconceptionDetectiveFeedback,
+} from "../lib/misconception-detective";
 
 type InteractiveMisconceptionDetectiveProps = {
   activity: MisconceptionDetectiveActivity;
-  onSubmitAttempt: (attempt: MisconceptionDetectiveAttempt) => void;
+  onComplete: (result: MisconceptionDetectiveFeedback) => void;
 };
 
 function getSelectionWithinElement(element: HTMLElement, fullText: string) {
@@ -80,20 +46,31 @@ function getSelectionWithinElement(element: HTMLElement, fullText: string) {
 
 export function InteractiveMisconceptionDetective({
   activity,
-  onSubmitAttempt,
+  onComplete,
 }: InteractiveMisconceptionDetectiveProps) {
   const statementRef = useRef<HTMLParagraphElement>(null);
   const [selectedText, setSelectedText] = useState("");
   const [selectedTextStart, setSelectedTextStart] = useState<number | null>(null);
   const [selectedTextEnd, setSelectedTextEnd] = useState<number | null>(null);
   const [reason, setReason] = useState("");
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [feedbacks, setFeedbacks] = useState<MisconceptionDetectiveFeedback[]>(
+    [],
+  );
+  const [result, setResult] = useState<MisconceptionDetectiveFeedback | null>(
+    null,
+  );
+  const [isChecking, setIsChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const attemptNumber = activity.attemptNumber ?? 1;
-  const canSubmit = selectedText.trim().length > 0 && reason.trim().length > 0;
+  const attemptNumber = feedbacks.length + 1;
+  const canSubmit =
+    selectedText.trim().length > 0 &&
+    reason.trim().length > 0 &&
+    !isChecking &&
+    !result;
 
   const captureSelection = () => {
-    if (!statementRef.current || hasSubmitted) {
+    if (!statementRef.current || result) {
       return;
     }
 
@@ -111,10 +88,10 @@ export function InteractiveMisconceptionDetective({
     setSelectedTextEnd(selection.selectedTextEnd);
   };
 
-  const submitAttempt = (event: FormEvent<HTMLFormElement>) => {
+  const submitAttempt = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!canSubmit || hasSubmitted) {
+    if (!canSubmit) {
       return;
     }
 
@@ -131,8 +108,44 @@ export function InteractiveMisconceptionDetective({
       reason: reason.trim(),
     };
 
-    setHasSubmitted(true);
-    onSubmitAttempt(attempt);
+    setIsChecking(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/misconception-detective/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activity, attempt }),
+      });
+
+      if (!response.ok) {
+        throw new Error("The tutor could not check this attempt.");
+      }
+
+      const feedback =
+        (await response.json()) as MisconceptionDetectiveFeedback;
+
+      setFeedbacks((current) => [...current, feedback]);
+
+      if (feedback.isCorrect) {
+        setResult(feedback);
+        onComplete(feedback);
+        return;
+      }
+
+      setSelectedText("");
+      setSelectedTextStart(null);
+      setSelectedTextEnd(null);
+      setReason("");
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "The tutor could not check this attempt.",
+      );
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   return (
@@ -157,9 +170,9 @@ export function InteractiveMisconceptionDetective({
         ) : null}
       </div>
 
-      {activity.priorAttempts && activity.priorAttempts.length > 0 ? (
+      {feedbacks.length > 0 ? (
         <div className="mb-4 space-y-2">
-          {activity.priorAttempts.map((attempt) => (
+          {feedbacks.map((attempt) => (
             <div
               key={attempt.attemptNumber}
               className={[
@@ -204,16 +217,28 @@ export function InteractiveMisconceptionDetective({
         <textarea
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          disabled={hasSubmitted}
+          disabled={isChecking || Boolean(result)}
           rows={4}
           className="mt-2 block w-full rounded-md border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-500"
           placeholder="Explain the mistake and, if you can, the correct version."
         />
       </label>
 
-      {hasSubmitted ? (
+      {error ? (
+        <div className="mt-4 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm font-medium text-rose-950">
+          {error}
+        </div>
+      ) : null}
+
+      {isChecking ? (
+        <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm font-medium text-zinc-700">
+          Checking your finding...
+        </div>
+      ) : null}
+
+      {result ? (
         <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-950">
-          Attempt submitted. The tutor will check it next.
+          Activity complete.
         </div>
       ) : null}
 
@@ -223,10 +248,10 @@ export function InteractiveMisconceptionDetective({
         </div>
         <button
           type="submit"
-          disabled={!canSubmit || hasSubmitted}
+          disabled={!canSubmit}
           className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-zinc-300"
         >
-          Submit finding
+          {isChecking ? "Checking..." : "Submit finding"}
         </button>
       </div>
     </form>
