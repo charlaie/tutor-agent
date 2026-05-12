@@ -23,7 +23,9 @@ export const misconceptionDetectiveActivitySchema = z.object({
   type: z.literal("misconception-detective"),
   activityId: z
     .string()
-    .describe("Unique id for this activity, such as 'detective-photosynthesis-1'."),
+    .describe(
+      "Unique id for this activity, such as 'detective-photosynthesis-1'.",
+    ),
   title: z.string().describe("Short activity title."),
   instructions: z
     .string()

@@ -50,7 +50,9 @@ export function InteractiveMisconceptionDetective({
 }: InteractiveMisconceptionDetectiveProps) {
   const statementRef = useRef<HTMLParagraphElement>(null);
   const [selectedText, setSelectedText] = useState("");
-  const [selectedTextStart, setSelectedTextStart] = useState<number | null>(null);
+  const [selectedTextStart, setSelectedTextStart] = useState<number | null>(
+    null,
+  );
   const [selectedTextEnd, setSelectedTextEnd] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const [feedbacks, setFeedbacks] = useState<MisconceptionDetectiveFeedback[]>(

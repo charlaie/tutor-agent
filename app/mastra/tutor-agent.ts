@@ -1,9 +1,9 @@
-import { MastraAgent } from "@ag-ui/mastra";
-import { generateObject } from "ai";
 import { randomUUID } from "node:crypto";
+import { MastraAgent } from "@ag-ui/mastra";
 import { resolveModel } from "@copilotkit/runtime/v2";
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
+import { generateObject } from "ai";
 import { z } from "zod";
 import { createMisconceptionDetectiveSession } from "../lib/activity-sessions";
 import { eventOrderingActivityInitSchema } from "../lib/event-ordering";
@@ -29,7 +29,9 @@ const createQuizActivityTool = createTool({
       .min(1)
       .max(6)
       .optional()
-      .describe("Number of questions. Default to 3 unless the learner asks otherwise."),
+      .describe(
+        "Number of questions. Default to 3 unless the learner asks otherwise.",
+      ),
   }),
   outputSchema: quizActivityInitSchema,
   execute: async ({ topic, questionCount }) => {
@@ -64,14 +66,18 @@ const createEventOrderingActivityTool = createTool({
   description:
     "Create a validated event-ordering activity payload. Use this before showing the start_event_ordering frontend tool.",
   inputSchema: z.object({
-    topic: z.string().describe("The learner's topic for the ordering activity."),
+    topic: z
+      .string()
+      .describe("The learner's topic for the ordering activity."),
     eventCount: z
       .number()
       .int()
       .min(3)
       .max(8)
       .optional()
-      .describe("Number of events. Default to 5 unless the learner asks otherwise."),
+      .describe(
+        "Number of events. Default to 5 unless the learner asks otherwise.",
+      ),
   }),
   outputSchema: eventOrderingActivityInitSchema,
   execute: async ({ topic, eventCount }) => {
@@ -108,7 +114,9 @@ const createMisconceptionDetectiveActivityTool = createTool({
   inputSchema: z.object({
     topic: z
       .string()
-      .describe("The learner's topic for the misconception detective activity."),
+      .describe(
+        "The learner's topic for the misconception detective activity.",
+      ),
   }),
   outputSchema: z.object({
     eventType: z.literal("activity-init"),

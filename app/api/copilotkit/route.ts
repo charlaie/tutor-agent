@@ -1,19 +1,19 @@
 import {
-	CopilotRuntime,
-	copilotRuntimeNextJSAppRouterEndpoint,
+  CopilotRuntime,
+  copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
 import type { NextRequest } from "next/server";
 import { tutorMastraAgent } from "../../mastra/tutor-agent";
 
 const runtime = new CopilotRuntime({
-	agents: { default: tutorMastraAgent },
+  agents: { default: tutorMastraAgent },
 });
 
 export const POST = async (req: NextRequest) => {
-	const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-		runtime,
-		endpoint: "/api/copilotkit",
-	});
+  const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
+    runtime,
+    endpoint: "/api/copilotkit",
+  });
 
-	return handleRequest(req);
+  return handleRequest(req);
 };

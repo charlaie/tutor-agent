@@ -1,0 +1,2 @@
+- Always use PNPM
+- Run pnpm check to lint and format with biome

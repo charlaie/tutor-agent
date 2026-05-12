@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { misconceptionDetectiveAttemptSchema } from "../../lib/misconception-detective";
 import { gradeMisconceptionDetectiveAttempt } from "../../lib/activity-sessions";
+import { misconceptionDetectiveAttemptSchema } from "../../lib/misconception-detective";
 
 export async function POST(request: Request) {
   const payload = misconceptionDetectiveAttemptSchema.safeParse(

@@ -63,9 +63,9 @@ export function InteractiveEventOrdering({
 }: InteractiveEventOrderingProps) {
   const [orderedEvents, setOrderedEvents] = useState(activity.events);
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [previewEvents, setPreviewEvents] = useState<EventOrderingItem[] | null>(
-    null,
-  );
+  const [previewEvents, setPreviewEvents] = useState<
+    EventOrderingItem[] | null
+  >(null);
   const [incorrectOrderings, setIncorrectOrderings] = useState<
     EventOrderingAttempt[]
   >([]);
@@ -77,7 +77,10 @@ export function InteractiveEventOrdering({
 
   const totalEvents = activity.events.length;
   const correctOrder = useMemo(
-    () => [...activity.events].sort((a, b) => a.correctPosition - b.correctPosition),
+    () =>
+      [...activity.events].sort(
+        (a, b) => a.correctPosition - b.correctPosition,
+      ),
     [activity.events],
   );
   const visibleEvents = previewEvents ?? orderedEvents;
@@ -159,11 +162,7 @@ export function InteractiveEventOrdering({
       const currentIndex = current.findIndex((event) => event.id === eventId);
       const nextIndex = currentIndex + direction;
 
-      if (
-        currentIndex === -1 ||
-        nextIndex < 0 ||
-        nextIndex >= current.length
-      ) {
+      if (currentIndex === -1 || nextIndex < 0 || nextIndex >= current.length) {
         return current;
       }
 
@@ -340,7 +339,9 @@ export function InteractiveEventOrdering({
                 <button
                   type="button"
                   onClick={() => moveByButton(event.id, 1)}
-                  disabled={index === visibleEvents.length - 1 || Boolean(result)}
+                  disabled={
+                    index === visibleEvents.length - 1 || Boolean(result)
+                  }
                   className="rounded border border-zinc-200 px-2 py-1 text-xs text-zinc-600 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Down

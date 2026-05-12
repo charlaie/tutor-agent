@@ -3,12 +3,12 @@
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
 import { normalizeEventOrderingArgs } from "../lib/activity-normalize";
 import {
-  eventOrderingActivityInitSchema,
   type EventOrderingActivityInit,
+  eventOrderingActivityInitSchema,
 } from "../lib/event-ordering";
 import {
-  InteractiveEventOrdering,
   type EventOrderingActivityEnd,
+  InteractiveEventOrdering,
 } from "./interactive-event-ordering";
 
 type EventOrderingToolProps = {

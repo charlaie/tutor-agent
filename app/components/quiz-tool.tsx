@@ -2,10 +2,7 @@
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
 import { normalizeQuizArgs } from "../lib/activity-normalize";
-import {
-  quizActivityInitSchema,
-  type QuizActivityInit,
-} from "../lib/quiz";
+import { type QuizActivityInit, quizActivityInitSchema } from "../lib/quiz";
 import { InteractiveQuiz, type QuizActivityEnd } from "./interactive-quiz";
 
 type QuizToolProps = {

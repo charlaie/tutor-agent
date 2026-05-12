@@ -1,14 +1,14 @@
-import { generateObject } from "ai";
 import { randomUUID } from "node:crypto";
 import { resolveModel } from "@copilotkit/runtime/v2";
+import { generateObject } from "ai";
 import { z } from "zod";
 import {
-  misconceptionDetectiveActivitySchema,
-  misconceptionDetectiveFeedbackSchema,
   type MisconceptionDetectiveActivity,
   type MisconceptionDetectiveAttempt,
   type MisconceptionDetectiveFeedback,
   type MisconceptionDetectivePublicActivity,
+  misconceptionDetectiveActivitySchema,
+  misconceptionDetectiveFeedbackSchema,
 } from "./misconception-detective";
 
 type MisconceptionSession = {
@@ -26,12 +26,16 @@ const generatedMisconceptionSchema = z.object({
     .describe("One sentence telling the learner to find the incorrect claim."),
   statement: z
     .string()
-    .describe("A short topic statement containing exactly one important factual mistake."),
+    .describe(
+      "A short topic statement containing exactly one important factual mistake.",
+    ),
   targetMisconception: z.object({
     incorrectText: z
       .string()
       .describe("The exact incorrect span or claim in the statement."),
-    correction: z.string().describe("The accurate replacement for the mistake."),
+    correction: z
+      .string()
+      .describe("The accurate replacement for the mistake."),
     explanation: z
       .string()
       .describe("Brief explanation of why the generated statement is wrong."),

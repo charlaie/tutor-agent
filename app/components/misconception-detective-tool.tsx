@@ -3,13 +3,11 @@
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
 import { normalizeMisconceptionDetectiveArgs } from "../lib/activity-normalize";
 import {
-  misconceptionDetectivePublicActivitySchema,
-  type MisconceptionDetectivePublicActivity,
   type MisconceptionDetectiveFeedback,
+  type MisconceptionDetectivePublicActivity,
+  misconceptionDetectivePublicActivitySchema,
 } from "../lib/misconception-detective";
-import {
-  InteractiveMisconceptionDetective,
-} from "./interactive-misconception-detective";
+import { InteractiveMisconceptionDetective } from "./interactive-misconception-detective";
 
 type MisconceptionDetectiveToolProps = {
   args: Partial<MisconceptionDetectivePublicActivity>;
@@ -45,10 +43,9 @@ function MisconceptionDetectiveToolRenderer({
     );
   }
 
-  const parsedActivity =
-    misconceptionDetectivePublicActivitySchema.safeParse(
-      normalizeMisconceptionDetectiveArgs(args),
-    );
+  const parsedActivity = misconceptionDetectivePublicActivitySchema.safeParse(
+    normalizeMisconceptionDetectiveArgs(args),
+  );
 
   if (!parsedActivity.success) {
     return (
