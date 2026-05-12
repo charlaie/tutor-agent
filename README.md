@@ -8,7 +8,9 @@ This project was built as part of the [Generative UI Global Hackathon: Agentic I
 
 - [Next.js](https://nextjs.org/) app router
 - [CopilotKit](https://www.copilotkit.ai/) runtime and React UI
-- Gemini via CopilotKit's built-in agent model resolver
+- [AG-UI](https://docs.ag-ui.com/) as the agent/frontend protocol
+- [Mastra](https://mastra.ai/) for the tutor agent runtime
+- Gemini via Mastra and server-side AI SDK calls
 - React and Tailwind CSS
 
 ## Requirements
@@ -23,6 +25,7 @@ This project requires a server-side Gemini API key:
 
 ```bash
 GOOGLE_API_KEY=your_gemini_api_key_here
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
 ```
 
 Create your local environment file from the example:
@@ -35,9 +38,10 @@ Then edit `.env` and replace the placeholder with your real Gemini API key:
 
 ```bash
 GOOGLE_API_KEY=AIza...
+GOOGLE_GENERATIVE_AI_API_KEY=AIza...
 ```
 
-Do not prefix this variable with `NEXT_PUBLIC_`. The key is used by the server-side CopilotKit route in `app/api/copilotkit/route.ts` and the grading route in `app/api/misconception-detective/grade/route.ts`.
+Do not prefix these variables with `NEXT_PUBLIC_`. They are used only on the server by the Mastra tutor agent, activity creation tools, and misconception grading side channel.
 
 ## Getting Started
 
@@ -83,6 +87,32 @@ Play misconception detective with me about HTTP caching.
 
 The tutor will call the relevant CopilotKit human-in-the-loop tool and render the interactive component in the chat.
 
+## Architecture
+
+The chat UI is still rendered with CopilotKit, but the tutor agent is now a Mastra agent exposed through AG-UI:
+
+```text
+React + CopilotKit chat
+  -> /api/copilotkit
+  -> AG-UI MastraAgent adapter
+  -> Mastra tutor agent
+  -> Gemini
+```
+
+Quiz and event-ordering activities use backend Mastra creation tools to produce validated activity payloads, then render with the existing CopilotKit human-in-the-loop components. They still grade locally in the browser and send one final result back to the tutor.
+
+Misconception detective uses a side channel for intermediate attempts:
+
+```text
+show_misconception_detective frontend tool
+  -> public activity payload only
+  -> /api/activity-events for each learner attempt
+  -> server-side private activity session + Gemini grading
+  -> final result returned to the main chat only when complete
+```
+
+This keeps detailed attempt/grading messages out of the main conversation history and keeps the hidden `targetMisconception` answer key off the client.
+
 ## Scripts
 
 ```bash
@@ -95,6 +125,8 @@ pnpm lint
 ## Project Structure
 
 - `app/page.tsx` renders the chat UI and registers activity tools.
-- `app/api/copilotkit/route.ts` configures the CopilotKit runtime and Gemini tutor agent.
+- `app/api/copilotkit/route.ts` exposes the CopilotKit runtime with the Mastra AG-UI tutor agent.
+- `app/mastra/tutor-agent.ts` defines the Mastra tutor agent and backend activity creation tools.
 - `app/components/*` contains the interactive quiz, ordering, and misconception-detective components.
-- `app/api/misconception-detective/grade/route.ts` grades misconception-detective attempts with Gemini.
+- `app/api/activity-events/route.ts` handles structured side-channel activity events.
+- `app/lib/activity-sessions.ts` stores private in-memory misconception activity state and grades attempts.

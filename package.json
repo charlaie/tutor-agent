@@ -9,9 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ag-ui/client": "^0.0.53",
+    "@ag-ui/mastra": "^1.0.2",
+    "@ai-sdk/google": "^3.0.71",
     "@copilotkit/react-core": "^1.57.1",
     "@copilotkit/react-ui": "^1.57.1",
     "@copilotkit/runtime": "^1.57.1",
+    "@mastra/core": "^1.32.1",
     "ai": "^6.0.176",
     "next": "16.2.6",
     "openai": "^6.37.0",

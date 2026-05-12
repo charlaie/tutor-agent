@@ -39,6 +39,11 @@ export const misconceptionDetectiveActivitySchema = z.object({
   ),
 });
 
+export const misconceptionDetectivePublicActivitySchema =
+  misconceptionDetectiveActivitySchema.omit({
+    targetMisconception: true,
+  });
+
 export const misconceptionDetectiveAttemptSchema = z.object({
   eventType: z.literal("activity-attempt"),
   type: z.literal("misconception-detective"),
@@ -65,17 +70,15 @@ export const misconceptionDetectiveFeedbackSchema = z.object({
   feedback: z.string(),
 });
 
-export const misconceptionDetectiveGradeRequestSchema = z.object({
-  activity: misconceptionDetectiveActivitySchema,
-  attempt: misconceptionDetectiveAttemptSchema,
-});
-
 export type MisconceptionTarget = z.infer<typeof misconceptionTargetSchema>;
 export type MisconceptionAttemptFeedback = z.infer<
   typeof misconceptionAttemptFeedbackSchema
 >;
 export type MisconceptionDetectiveActivity = z.infer<
   typeof misconceptionDetectiveActivitySchema
+>;
+export type MisconceptionDetectivePublicActivity = z.infer<
+  typeof misconceptionDetectivePublicActivitySchema
 >;
 export type MisconceptionDetectiveAttempt = z.infer<
   typeof misconceptionDetectiveAttemptSchema

@@ -2,13 +2,13 @@
 
 import { type FormEvent, useRef, useState } from "react";
 import type {
-  MisconceptionDetectiveActivity,
   MisconceptionDetectiveAttempt,
   MisconceptionDetectiveFeedback,
+  MisconceptionDetectivePublicActivity,
 } from "../lib/misconception-detective";
 
 type InteractiveMisconceptionDetectiveProps = {
-  activity: MisconceptionDetectiveActivity;
+  activity: MisconceptionDetectivePublicActivity;
   onComplete: (result: MisconceptionDetectiveFeedback) => void;
 };
 
@@ -112,10 +112,10 @@ export function InteractiveMisconceptionDetective({
     setError(null);
 
     try {
-      const response = await fetch("/api/misconception-detective/grade", {
+      const response = await fetch("/api/activity-events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activity, attempt }),
+        body: JSON.stringify(attempt),
       });
 
       if (!response.ok) {
