@@ -1,5 +1,5 @@
 import { resolveModel } from "@copilotkit/runtime/v2";
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -45,9 +45,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { object } = await generateObject({
+    const { output } = await generateText({
       model: resolveModel("google:gemini-2.5-flash"),
-      schema: gradeResultSchema,
+      output: Output.object({ schema: gradeResultSchema }),
       temperature: 0,
       system: `You grade a misconception detective activity.
 
@@ -72,7 +72,7 @@ If the learner is correct, explain why in 1-3 sentences.`,
     });
 
     const feedback = misconceptionDetectiveFeedbackSchema.parse({
-      eventType: object.isCorrect ? "activity-end" : "activity-update",
+      eventType: output.isCorrect ? "activity-end" : "activity-update",
       type: "misconception-detective",
       activityId: activity.activityId,
       title: activity.title,
@@ -80,8 +80,8 @@ If the learner is correct, explain why in 1-3 sentences.`,
       attemptNumber: attempt.attemptNumber,
       selectedText: attempt.selectedText,
       reason: attempt.reason,
-      isCorrect: object.isCorrect,
-      feedback: object.feedback,
+      isCorrect: output.isCorrect,
+      feedback: output.feedback,
     });
 
     return NextResponse.json(feedback);
