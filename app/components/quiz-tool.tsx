@@ -1,7 +1,6 @@
 "use client";
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
-import { normalizeQuizArgs } from "../lib/activity-normalize";
 import { type QuizActivityInit, quizActivityInitSchema } from "../lib/quiz";
 import { InteractiveQuiz, type QuizActivityEnd } from "./interactive-quiz";
 
@@ -34,7 +33,7 @@ function QuizToolRenderer({ args, status, result, respond }: QuizToolProps) {
     );
   }
 
-  const parsedQuiz = quizActivityInitSchema.safeParse(normalizeQuizArgs(args));
+  const parsedQuiz = quizActivityInitSchema.safeParse(args);
 
   if (!parsedQuiz.success) {
     return (

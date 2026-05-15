@@ -1,7 +1,6 @@
 "use client";
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
-import { normalizeEventOrderingArgs } from "../lib/activity-normalize";
 import {
   type EventOrderingActivityInit,
   eventOrderingActivityInitSchema,
@@ -45,9 +44,7 @@ function EventOrderingToolRenderer({
     );
   }
 
-  const parsedActivity = eventOrderingActivityInitSchema.safeParse(
-    normalizeEventOrderingArgs(args),
-  );
+  const parsedActivity = eventOrderingActivityInitSchema.safeParse(args);
 
   if (!parsedActivity.success) {
     return (

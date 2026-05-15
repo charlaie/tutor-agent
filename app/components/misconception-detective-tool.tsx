@@ -1,7 +1,6 @@
 "use client";
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
-import { normalizeMisconceptionDetectiveArgs } from "../lib/activity-normalize";
 import {
   type MisconceptionDetectiveFeedback,
   type MisconceptionDetectivePublicActivity,
@@ -43,9 +42,7 @@ function MisconceptionDetectiveToolRenderer({
     );
   }
 
-  const parsedActivity = misconceptionDetectivePublicActivitySchema.safeParse(
-    normalizeMisconceptionDetectiveArgs(args),
-  );
+  const parsedActivity = misconceptionDetectivePublicActivitySchema.safeParse(args);
 
   if (!parsedActivity.success) {
     return (
