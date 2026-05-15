@@ -2,14 +2,14 @@
 
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
 import {
+  type MisconceptionDetectiveActivity,
   type MisconceptionDetectiveFeedback,
-  type MisconceptionDetectivePublicActivity,
-  misconceptionDetectivePublicActivitySchema,
+  misconceptionDetectiveActivitySchema,
 } from "../lib/misconception-detective";
 import { InteractiveMisconceptionDetective } from "./interactive-misconception-detective";
 
 type MisconceptionDetectiveToolProps = {
-  args: Partial<MisconceptionDetectivePublicActivity>;
+  args: Partial<MisconceptionDetectiveActivity>;
   status: "inProgress" | "executing" | "complete";
   result: string | undefined;
   respond?: (result: unknown) => Promise<void>;
@@ -42,7 +42,7 @@ function MisconceptionDetectiveToolRenderer({
     );
   }
 
-  const parsedActivity = misconceptionDetectivePublicActivitySchema.safeParse(args);
+  const parsedActivity = misconceptionDetectiveActivitySchema.safeParse(args);
 
   if (!parsedActivity.success) {
     return (
@@ -64,11 +64,11 @@ function MisconceptionDetectiveToolRenderer({
 }
 
 export function MisconceptionDetectiveTool() {
-  useHumanInTheLoop<MisconceptionDetectivePublicActivity>({
+  useHumanInTheLoop<MisconceptionDetectiveActivity>({
     name: "show_misconception_detective",
     description:
       "Show an interactive misconception detective activity where the learner highlights the incorrect part of a statement and explains what is wrong.",
-    parameters: misconceptionDetectivePublicActivitySchema,
+    parameters: misconceptionDetectiveActivitySchema,
     followUp: true,
     render: MisconceptionDetectiveToolRenderer,
   });

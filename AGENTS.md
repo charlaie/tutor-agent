@@ -1,2 +1,2 @@
-- Always use PNPM
-- Run pnpm check to lint and format with biome
+- Always use PNPM instead of NPM
+- After finished making code changes, run pnpm check to lint and format with biome
