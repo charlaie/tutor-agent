@@ -72,6 +72,11 @@ export const misconceptionDetectiveFeedbackSchema = z.object({
   feedback: z.string(),
 });
 
+export const misconceptionDetectiveGradeRequestSchema = z.object({
+  activity: misconceptionDetectiveActivitySchema,
+  attempt: misconceptionDetectiveAttemptSchema,
+});
+
 export type MisconceptionTarget = z.infer<typeof misconceptionTargetSchema>;
 export type MisconceptionAttemptFeedback = z.infer<
   typeof misconceptionAttemptFeedbackSchema
@@ -87,4 +92,7 @@ export type MisconceptionDetectiveAttempt = z.infer<
 >;
 export type MisconceptionDetectiveFeedback = z.infer<
   typeof misconceptionDetectiveFeedbackSchema
+>;
+export type MisconceptionDetectiveGradeRequest = z.infer<
+  typeof misconceptionDetectiveGradeRequestSchema
 >;

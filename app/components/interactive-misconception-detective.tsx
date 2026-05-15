@@ -3,6 +3,7 @@
 import { type FormEvent, useRef, useState } from "react";
 import type {
   MisconceptionDetectiveActivity,
+  MisconceptionDetectiveAttempt,
   MisconceptionDetectiveFeedback,
 } from "../lib/misconception-detective";
 
@@ -11,7 +12,7 @@ type InteractiveMisconceptionDetectiveProps = {
   onComplete: (result: MisconceptionDetectiveFeedback) => void;
 };
 
-function getSelectionWithinElement(element: HTMLElement) {
+function getSelectionWithinElement(element: HTMLElement, fullText: string) {
   const selection = window.getSelection();
 
   if (!selection || selection.rangeCount === 0) {
@@ -33,11 +34,14 @@ function getSelectionWithinElement(element: HTMLElement) {
     return null;
   }
 
-  return selectedText;
-}
+  const selectedTextStart = fullText.indexOf(selectedText);
 
-function normalizeText(value: string) {
-  return value.toLowerCase().replace(/\s+/g, " ").trim();
+  return {
+    selectedText,
+    selectedTextStart: selectedTextStart === -1 ? null : selectedTextStart,
+    selectedTextEnd:
+      selectedTextStart === -1 ? null : selectedTextStart + selectedText.length,
+  };
 }
 
 export function InteractiveMisconceptionDetective({
@@ -46,6 +50,10 @@ export function InteractiveMisconceptionDetective({
 }: InteractiveMisconceptionDetectiveProps) {
   const statementRef = useRef<HTMLParagraphElement>(null);
   const [selectedText, setSelectedText] = useState("");
+  const [selectedTextStart, setSelectedTextStart] = useState<number | null>(
+    null,
+  );
+  const [selectedTextEnd, setSelectedTextEnd] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const [feedbacks, setFeedbacks] = useState<MisconceptionDetectiveFeedback[]>(
     [],
@@ -68,13 +76,18 @@ export function InteractiveMisconceptionDetective({
       return;
     }
 
-    const selection = getSelectionWithinElement(statementRef.current);
+    const selection = getSelectionWithinElement(
+      statementRef.current,
+      activity.statement,
+    );
 
     if (!selection) {
       return;
     }
 
-    setSelectedText(selection);
+    setSelectedText(selection.selectedText);
+    setSelectedTextStart(selection.selectedTextStart);
+    setSelectedTextEnd(selection.selectedTextEnd);
   };
 
   const submitAttempt = async (event: FormEvent<HTMLFormElement>) => {
@@ -88,27 +101,30 @@ export function InteractiveMisconceptionDetective({
     setError(null);
 
     try {
-      const normalizedSelection = normalizeText(selectedText);
-      const normalizedTarget = normalizeText(
-        activity.targetMisconception.incorrectText,
-      );
-      const isCorrect =
-        normalizedSelection.includes(normalizedTarget) ||
-        normalizedTarget.includes(normalizedSelection);
-      const feedback: MisconceptionDetectiveFeedback = {
-        eventType: isCorrect ? "activity-end" : "activity-update",
+      const attempt: MisconceptionDetectiveAttempt = {
+        eventType: "activity-attempt",
         type: "misconception-detective",
         activityId: activity.activityId,
         title: activity.title,
-        checkedAt: new Date().toISOString(),
+        submittedAt: new Date().toISOString(),
         attemptNumber,
         selectedText: selectedText.trim(),
+        selectedTextStart,
+        selectedTextEnd,
         reason: reason.trim(),
-        isCorrect,
-        feedback: isCorrect
-          ? activity.targetMisconception.explanation
-          : "That is not the target misconception. Look for the specific claim that conflicts with the topic.",
       };
+      const response = await fetch("/api/activity-events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activity, attempt }),
+      });
+
+      if (!response.ok) {
+        throw new Error("The tutor could not check this attempt.");
+      }
+
+      const feedback =
+        (await response.json()) as MisconceptionDetectiveFeedback;
 
       setFeedbacks((current) => [...current, feedback]);
 
@@ -119,6 +135,8 @@ export function InteractiveMisconceptionDetective({
       }
 
       setSelectedText("");
+      setSelectedTextStart(null);
+      setSelectedTextEnd(null);
       setReason("");
     } catch (caughtError) {
       setError(
