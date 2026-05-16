@@ -1,5 +1,6 @@
 import { MastraAgent } from "@ag-ui/mastra";
 import { Agent } from "@mastra/core/agent";
+import { MODEL } from "../lib/config";
 
 const tutorInstructions = `You are a patient tutor agent.
 
@@ -20,7 +21,13 @@ const tutorAgent = new Agent({
   id: "tutor-agent",
   name: "Tutor Agent",
   instructions: tutorInstructions,
-  model: "google/gemini-2.5-flash",
+  model: [
+    {
+      model: MODEL,
+      maxRetries: 2,
+      modelSettings: { temperature: 1 },
+    },
+  ],
   defaultOptions: {
     maxSteps: 6,
   },

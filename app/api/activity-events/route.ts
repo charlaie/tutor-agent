@@ -2,6 +2,7 @@ import { resolveModel } from "@copilotkit/runtime/v2";
 import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { MODEL } from "../../lib/config";
 import {
   misconceptionDetectiveFeedbackSchema,
   misconceptionDetectiveGradeRequestSchema,
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
 
   try {
     const { output } = await generateText({
-      model: resolveModel("google:gemini-2.5-flash"),
+      model: resolveModel(MODEL),
       output: Output.object({ schema: gradeResultSchema }),
       temperature: 0,
       system: `You grade a misconception detective activity.
